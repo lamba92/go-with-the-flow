@@ -4,9 +4,7 @@ import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.observables.GroupedObservable
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.rx3.asObservable
@@ -24,11 +22,26 @@ suspend fun main() {
         emit("nope!")
     }
 
+    val stoppingFlow = flow {
+        delay(1.5.seconds)
+        emit(Unit)
+    }
+
     flow.takeUntil(2.seconds)
         .collect { print(it) }
+
+    flow.takeUntil(stoppingFlow)
+        .collectIndexed {  index, string -> if (index == 0) println(string) else print(string) }
 }
 
 /**
  * Returns a flow that terminates after the given [duration].
  */
 fun <T> Flow<T>.takeUntil(duration: Duration): Flow<T> = TODO()
+
+/**
+ * Returns a flow that terminates once [flow] emits a value.
+ *
+ * ![takeUntil image](https://rxjs.dev/assets/images/marble-diagrams/takeUntil.png)
+ */
+fun <T> Flow<T>.takeUntil(flow: Flow<*>): Flow<T> = TODO()

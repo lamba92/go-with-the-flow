@@ -22,6 +22,8 @@ suspend fun main(): Unit = coroutineScope {
 /**
  * Returns two flows, the first one has the values that passes the filter, the second one the values
  * which doesn't pass the filter.
+ *
+ * ![partition image](https://rxjs.dev/assets/images/marble-diagrams/partition.png)
  */
 inline fun <T> Flow<T>.partition(crossinline filter: suspend (T) -> Boolean): Pair<Flow<T>, Flow<T>> {
     TODO()

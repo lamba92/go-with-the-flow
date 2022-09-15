@@ -38,33 +38,13 @@ suspend fun main() {
 
 
 /**
+ * Returns a flow that emits all the original followed by a [fold] of
+ * the last value from the receiver as initial accumulator with the values emitted
+ * from the [modifierFlow].
  *
+ * ![modifiedBy image](https://github.com/lamba92/go-with-the-flow/blob/master/images/modifiedBy_operator.png?raw=true)
  */
 internal inline fun <reified T, reified R> Flow<T>.modifiedBy(
     modifierFlow: Flow<R>,
     crossinline transform: suspend (T, R) -> T
-): Flow<T> = channelFlow {
-    val queue = Channel<Any?>(capacity = 1)
-
-    val mutex = Mutex(locked = true)
-    this@modifiedBy.onEach {
-        queue.send(it)
-        if (mutex.isLocked) mutex.unlock()
-    }.launchIn(this)
-        .invokeOnCompletion { queue.close() }
-
-    mutex.lock()
-    modifierFlow.onEach { queue.send(it) }.launchIn(this)
-
-    var currentState: T = queue.receive() as T
-    send(currentState)
-
-    for (e in queue) {
-        currentState = when (e) {
-            is T -> e
-            is R -> transform(currentState, e)
-            else -> continue
-        }
-        send(currentState)
-    }
-}
+): Flow<T> = TODO()

@@ -14,7 +14,10 @@ import kotlin.time.Duration
 
 
 /**
- * Returns two flows, the first one has the values that passes the filter, the second one the ones which don't.
+ * Returns two flows, the first one has the values that passes the filter, the second one the values
+ * which doesn't pass the filter.
+ *
+ * ![partition image](https://rxjs.dev/assets/images/marble-diagrams/partition.png)
  */
 private inline fun <T> Flow<T>.partition(crossinline filter: suspend (T) -> Boolean): Pair<Flow<T>, Flow<T>> {
     val flowA = flow {
@@ -40,10 +43,19 @@ private fun <T> Flow<T>.takeUntil(duration: Duration): Flow<T> = channelFlow {
     job.cancel()
 }
 
+/**
+ * Returns a flow that terminates once [flow] emits a value.
+ *
+ * ![takeUntil image](https://rxjs.dev/assets/images/marble-diagrams/takeUntil.png)
+ */
+private fun <T> Flow<T>.takeUntil(flow: Flow<*>): Flow<T> = TODO()
+
 private data class GroupByItem<K, V>(val key: K, val flow: Flow<V>)
 
 /**
  * Returns a flow of flows, where each new flow emits the values grouped by the result of the [filter].
+ *
+ * ![groupBy image]()https://rxjs.dev/assets/images/marble-diagrams/groupBy.png)
  */
 private inline fun <V, K> Flow<V>.groupBy(
     closeAllOnError: Boolean = true,
@@ -73,6 +85,8 @@ private inline fun <V, K> Flow<V>.groupBy(
  * Returns a flow that emits all the original followed by a [fold] of
  * the last value from the receiver as initial accumulator with the values emitted
  * from the [modifierFlow].
+ *
+ * ![modifiedBy image](https://github.com/lamba92/go-with-the-flow/blob/master/images/modifiedBy_operator.png?raw=true)
  */
 private inline fun <reified T, reified R> Flow<T>.modifiedBy(
     modifierFlow: Flow<R>,

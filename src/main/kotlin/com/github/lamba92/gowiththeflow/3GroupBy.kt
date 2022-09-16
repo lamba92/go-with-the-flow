@@ -3,23 +3,20 @@
 package com.github.lamba92.gowiththeflow
 
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.joinAll
 
 suspend fun main(): Unit = coroutineScope {
-    val range = 0..100
+    val range = 0 until 100
 
     val jobs = range.asFlow()
         .groupBy { it % 10 }
         .map { (key, flow) ->
-            flow.onEach { println("Key $key -> $it") }
+            flow.onEach { number -> println("Key $key -> $number") }
                 .launchIn(this)
         }
         .toList()
+    jobs.joinAll()
 }
 
 data class GroupByItem<K, V>(val key: K, val flow: Flow<V>)
@@ -27,9 +24,10 @@ data class GroupByItem<K, V>(val key: K, val flow: Flow<V>)
 /**
  * Returns a flow of flows, where each new flow emits the values grouped by the result of the [filter].
  *
- * ![groupBy image]()https://rxjs.dev/assets/images/marble-diagrams/groupBy.png)
+ * ![groupBy image](https://rxjs.dev/assets/images/marble-diagrams/groupBy.png)
  */
-inline fun <V, K> Flow<V>.groupBy(
-    closeAllOnError: Boolean = true,
-    crossinline filter: suspend (V) -> K
-): Flow<GroupByItem<K, V>> = TODO()
+fun <V, K> Flow<V>.groupBy(
+    keySelector: suspend (V) -> K
+): Flow<GroupByItem<K, V>> {
+    TODO()
+}

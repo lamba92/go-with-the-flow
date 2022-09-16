@@ -2,21 +2,21 @@ package com.github.lamba92.gowiththeflow
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.asFlow
-import kotlinx.coroutines.rx3.rxObservable
 
 
-suspend fun main(): Unit = coroutineScope {
-    val observable = rxObservable { repeat(100) { send(it) } }
+suspend fun main() {
+    val flow = flow {
+        repeat(100) { count -> emit(count) }
+    }
 
-    val (evenFlow, oddFlow) = observable.asFlow()
-        .partition { it % 2 == 0 }
-
-    evenFlow.map {  }
-    launch { evenFlow.collect { println("I am even: $it") } }
-    launch { oddFlow.collect { println("I am odd: $it") } }
+    val (evenFlow, oddFlow) = flow
+        .partition { number -> number % 2 == 0 }
+    coroutineScope {
+        launch { evenFlow.collect { println("I am even: $it") } }
+        oddFlow.collect { println("I am odd: $it") }
+    }
 }
 
 /**
@@ -25,6 +25,8 @@ suspend fun main(): Unit = coroutineScope {
  *
  * ![partition image](https://rxjs.dev/assets/images/marble-diagrams/partition.png)
  */
-inline fun <T> Flow<T>.partition(crossinline filter: suspend (T) -> Boolean): Pair<Flow<T>, Flow<T>> {
+fun <T> Flow<T>.partition(
+    filter: suspend (T) -> Boolean
+): Pair<Flow<T>, Flow<T>> {
     TODO()
 }

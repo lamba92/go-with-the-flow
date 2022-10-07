@@ -34,11 +34,8 @@ private inline fun <T> Flow<T>.partition(crossinline filter: suspend (T) -> Bool
  */
 private fun <T> Flow<T>.takeUntil(duration: Duration): Flow<T> = channelFlow {
     val job = launch { collect { send(it) } }
-    try {
-        delay(duration)
-    } finally {
-        job.cancel()
-    }
+    delay(duration)
+    job.cancel()
 }
 
 /**
@@ -48,11 +45,8 @@ private fun <T> Flow<T>.takeUntil(duration: Duration): Flow<T> = channelFlow {
  */
 private fun <T> Flow<T>.takeUntil(flow: Flow<*>): Flow<T> = channelFlow {
     val job = launch { collect { send(it) } }
-    try {
-        flow.first()
-    } finally {
-        job.cancel()
-    }
+    flow.first()
+    job.cancel()
 }
 
 /**

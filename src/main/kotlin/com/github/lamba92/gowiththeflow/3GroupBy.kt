@@ -4,19 +4,20 @@ package com.github.lamba92.gowiththeflow
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 
 suspend fun main(): Unit = coroutineScope {
     val range = 0 until 100
 
-    val jobs = range.asFlow()
+    range.asFlow()
         .groupBy { it % 10 }
-        .map { (key, flow) ->
-            flow.onEach { number -> println("Key $key -> $number") }
-                .launchIn(this)
+        .collect { (key, flow) ->
+            launch {
+                flow.collect { number ->
+                    println("Key $key -> $number")
+                }
+            }
         }
-        .toList()
-    jobs.joinAll()
 }
 
 data class GroupByItem<K, V>(val key: K, val flow: Flow<V>)

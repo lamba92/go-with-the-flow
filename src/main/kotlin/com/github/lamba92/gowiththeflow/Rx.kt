@@ -11,7 +11,6 @@ import kotlin.time.Duration.Companion.seconds
 fun rxRange(count: Int) = rxObservable {
     repeat(count) {
         send(it)
-        delay(0.1.seconds)
     }
 }
 

@@ -1,7 +1,8 @@
 package com.github.lamba92.gowiththeflow
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.rx3.await
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx3.collect
 import kotlinx.coroutines.rx3.rxObservable
 import java.util.concurrent.TimeUnit
@@ -24,21 +25,25 @@ suspend fun main() {
     val evenObservable = rxRange(10).filter { it % 2 == 0 }
     val oddObservable = rxRange(10).filter { it % 2 != 0 }
 
+    println("partition (not available in RxJava)")
     evenObservable.collect { println("EVEN: $it") }
     oddObservable.collect { println("ODD: $it") }
+    println("___________________\n")
 
     println("io.reactivex.rxjava3.core.Observable.take(long, java.util.concurrent.TimeUnit)")
     rxRange(10).take(800, TimeUnit.MILLISECONDS)
         .collect { println(it) }
+    println("___________________\n")
 
     println("io.reactivex.rxjava3.core.Observable.takeUntil(io.reactivex.rxjava3.core.ObservableSource<U>)")
     rxRange(10).takeUntil(kotlinxObservable2)
         .collect { println(it) }
+    println("___________________\n")
 
     println("io.reactivex.rxjava3.core.Observable.groupBy(io.reactivex.rxjava3.functions.Function<? super T,? extends K>)")
     coroutineScope {
-        val jobs: List<Job> = rxRange(25).groupBy { it % 10 }
-            .map { groupedObservable ->
+        rxRange(25).groupBy { it % 10 }
+            .collect { groupedObservable ->
                 val key = groupedObservable.key
                 launch {
                     groupedObservable.collect { integer ->
@@ -46,10 +51,6 @@ suspend fun main() {
                     }
                 }
             }
-            .toList()
-            .await()
-
-        jobs.joinAll()
     }
 
 }

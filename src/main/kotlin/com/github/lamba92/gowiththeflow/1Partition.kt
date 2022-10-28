@@ -13,6 +13,7 @@ suspend fun main() {
 
     val (evenFlow, oddFlow) = flow
         .partition { number -> number % 2 == 0 }
+
     coroutineScope {
         launch { evenFlow.collect { println("I am even: $it") } }
         oddFlow.collect { println("I am odd: $it") }

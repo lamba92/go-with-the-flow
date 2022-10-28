@@ -2,11 +2,9 @@ package com.github.lamba92.gowiththeflow.solutions
 
 import com.github.lamba92.gowiththeflow.GroupByItem
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
 import kotlin.time.Duration
 
 
@@ -35,11 +33,9 @@ private inline fun <T> Flow<T>.partition(crossinline filter: suspend (T) -> Bool
  * Returns a flow that terminates after the given [duration].
  */
 private fun <T> Flow<T>.takeUntil(duration: Duration): Flow<T> = channelFlow {
-    coroutineScope {
-        val job = launch { collect { send(it) } }
-        delay(duration)
-        job.cancel()
-    }
+    val job = launch { collect { send(it) } }
+    delay(duration)
+    job.cancel()
 }
 
 /**
@@ -48,13 +44,9 @@ private fun <T> Flow<T>.takeUntil(duration: Duration): Flow<T> = channelFlow {
  * ![takeUntil image](https://rxjs.dev/assets/images/marble-diagrams/takeUntil.png)
  */
 private fun <T> Flow<T>.takeUntil(flow: Flow<*>): Flow<T> = channelFlow {
-    coroutineScope {
-        val job = launch { collect { send(it) } }
-        select {
-            launch { flow.first() }.onJoin { }
-            job.onJoin { job.cancel() }
-        }
-    }
+    val job = launch { collect { send(it) } }
+    flow.first()
+    job.cancel()
 }
 
 /**
